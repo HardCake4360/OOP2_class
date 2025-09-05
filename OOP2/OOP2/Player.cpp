@@ -1,0 +1,74 @@
+#include <math.h>
+
+#include "Player.h"
+#include "Enemy.h"
+#include "GameObject.h"
+#include "Bullet.h"
+
+void Player::onCollision(GameObject* other)
+{
+	if (!other) return;
+
+	Enemy* enemy = dynamic_cast<Enemy*>(other);
+	if (enemy != nullptr) {
+		enemy->take_damage(0.1f);
+	}
+}
+
+
+void Player::fire() const
+{
+	// find the closest enemy from my location
+	Enemy* closest = nullptr;
+	for (int i = 0; i < MaxGameObjects; i++)
+	{
+		if (GameObjects[i] == nullptr || GameObjects[i]->is_active() == false) continue;
+
+		Enemy* enemy = dynamic_cast<Enemy*>(GameObjects[i]);
+		if (enemy == nullptr) continue;
+
+		if (closest == nullptr) {
+			closest = enemy;
+			continue;
+		}
+		if (fabs(closest->get_pos() - get_pos()) > fabs(enemy->get_pos() - get_pos())) {
+			closest = enemy;
+		}
+	}
+
+	// if found, shoot a bullet.
+
+	Bullet* bullet = new Bullet;
+	if (Add(bullet) == false) {
+		delete bullet;
+		return;
+	}
+
+	int start_pos = (int)get_pos() - 1;
+	int direction = -1;
+	if (closest == nullptr) {
+		direction = rand() % 2 == 0 ? -1 : 1;
+	}
+	if ((closest != nullptr && get_pos() < closest->get_pos()) || direction == 1) {
+		start_pos += get_shape_size() + 1;
+		direction = 1;
+	}
+	bullet->set_fire(start_pos, direction);
+}
+
+void Player::update(const Screen* screen)
+{
+	if (this->n_remaining_frames_for_hp_bar > 0) {
+		this->n_remaining_frames_for_hp_bar--;
+		if (this->n_remaining_frames_for_hp_bar == 0) {
+			recover_shape();
+		}
+		else {
+			set_hp_shape();
+		}
+	}
+	if (this->hp <= 0.0f) {
+		set_active(false);
+		return;
+	}
+}
