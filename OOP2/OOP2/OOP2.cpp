@@ -17,7 +17,8 @@
 
 int main()
 {
-	const int screen_size = 80;
+	const int screen_height = 20;
+	const int screen_width = 80;
 	const int max_bullets = 5;
 	const int max_active_particles_per_bullet = 5;
 	const int n_frames_per_second = 10;
@@ -25,7 +26,7 @@ int main()
 	const int max_particle_visible_frames = 1 * n_frames_per_second;
 	bool exit_flag = false;
 
-	Screen screen(screen_size, n_frames_per_second);
+	Screen screen(screen_height,screen_width, n_frames_per_second);
 	GameObject::Initialize();
 	Particle::Initialize(max_particle_visible_frames, max_active_particles_per_bullet);
 
